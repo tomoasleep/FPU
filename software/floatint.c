@@ -86,7 +86,7 @@ int main() {
 	ufi b;
 	ufi r;
 	ufi q;
-	while(n<100000000){//0018
+	while(n<1000000000){//0018
 		a.u=(float)rand();//0000 0000 1101 0000 1101 1010 1111 1001
 		b.u=(float)rand();//0000 0000 1111 1000 0101 1011 1110 1100
 		r.f=a.f+b.f;
@@ -99,6 +99,7 @@ int main() {
 				printf("CORRECT_ANSWER:");print_bit(r);
 				printf("\n\n");
 			}
+			else{i++;}
 		}
 		n++;
 	}
