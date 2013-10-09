@@ -5,7 +5,7 @@
 typedef union floatint{
 	struct{
 		unsigned int ex: 23;
-	       	unsigned int fr :  8;
+		unsigned int fr :  8;
 		unsigned int si :  1;
 	};
 	uint32_t u;
@@ -27,18 +27,21 @@ ufi fadd(ufi a, ufi b){
 	ufi q;
 	int x;
 	int i;
+	int round;
 	uint32_t ee;
-//	print_bit(a);print_bit(b);printf("大きい方をaに格納\n");
+	//	print_bit(a);print_bit(b);printf("大きい方をaに格納\n");
 	if ((a.u << 1)<(b.u <<1)){r.u=b.u; b.u=a.u; a.u=r.u;}//絶対値が大きい方がaになる
 
 
-//	print_bit(a);print_bit(b);printf("指数の差だけ右にシフト\n");
+	//	print_bit(a);print_bit(b);printf("指数の差だけ右にシフト\n");
 	x=((a.u&0x7FFFFFFF)>>23) - ((b.u&0x7FFFFFFF)>>23) -1;
-//	printf("x=%d\n",x);
-	if(x<0) r.u=(((b.u & 0x007FFFFF)^0x00800000) << (-x));
+	//	printf("x=%d\n",x);
+	if(x<0) r.u=(((b.u & 0x007FFFFF)|0x00800000) << (-x));
 	else {
-		if(x<32) r.u=(((b.u & 0x007FFFFF)^0x00800000) >> x);//指数の差だけ右へシフト
-		else r.u=0;
+		if(x<24) {
+			r.u=(((b.u & 0x007FFFFF)|0x00800000) >> x);//指数の差だけ右へシフト
+			round=(b.u & (0x007FFFFF >> (23-x) ))>0;}
+		else {r.u=0; round=1;}
 	} 
 	q.u=a.u;
 	q.si=0;
@@ -47,7 +50,7 @@ ufi fadd(ufi a, ufi b){
 
 
 
-//	print_bit(q);print_bit(r);printf("演算\n");
+	//	print_bit(q);print_bit(r);printf("演算\n");
 	if(a.si==b.si) ee=q.u+r.u; else ee=q.u-r.u; //演算
 
 	i=25;
@@ -58,18 +61,18 @@ ufi fadd(ufi a, ufi b){
 	r.si=a.si;
 	r.fr=a.fr+i-1;
 
-//	printf("i=%d, ee=",i);q.u=0x0;q.u=ee;print_bit(q);
+	//printf("round=%d^%d,%d",round,(ee&0x1),2*((ee&0x1)&( ((ee >> 1)&0x1)|round ) ));//, ee=",i);q.u=0x0;q.u=ee;print_bit(q);
 	if(i<0) {
 		r.ex=(ee<<(-i))&0x007FFFFF;
 	}
 	else {
-		if (i==2) {ee=ee+4*((ee&0x2)&((ee&0x1)^(ee&0x3)));}
+		if (i==2) {ee=ee+4*(((ee >> 1)&0x1)&((ee&0x1)|((ee >> 2)&0x1)|round ));}
 		else {
-			if (i==1) {ee=ee+2*((ee&0x1)&(ee&0x2));}
+			if (i==1) {ee=ee+2*((ee&0x1)&( ((ee >> 1)&0x1)|round ));}
 		}
 		r.ex=(ee>>(i))&0x007FFFFF;
 	}
-
+	if (r.fr==0xFF) r.ex=0;
 
 
 	return(r);
@@ -82,20 +85,24 @@ int main() {
 	ufi b;
 	ufi r;
 	ufi q;
-	while(n<10000){//0018
+	while(n<1000000){//0018
 		a.u=(float)(rand());
 		b.u=(float)(rand());
+
 		r.f=a.f+b.f;
 		q=fadd(a,b);
 		if(r.u==q.u){i++;}
 		else{
-			print_bit(a);print_bit(b);
-			printf("WRONG_ANSWER = ");print_bit(q);
-			printf("CORRECT_ANSWER:");print_bit(r);
-			printf("\n\n");
+			if(a.fr!=0&&b.fr!=0&&a.fr!=0xFF&&b.fr!=0xFF)
+			{
+				print_bit(a);print_bit(b);
+				printf("WRONG_ANSWER = ");print_bit(q);
+				printf("CORRECT_ANSWER:");print_bit(r);
+				printf("\n\n");
+			}
 		}
 		n++;
 	}
-	printf("RESULT:%f%%",(100*((float)i/(float)n)));
+	printf("RESULT:%f%%\n",(100*((float)i/(float)n)));
 	return(0);
 }
