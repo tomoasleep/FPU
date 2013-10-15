@@ -85,7 +85,6 @@ ufi fadd(ufi a, ufi b){
 }
 
 int main(int argc, char *argv[]) {
-int main() {
 	int n=0;
 	int i=0;
 	ufi a;
