@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<stdint.h>
+#include <time.h>
 
 typedef union floatint{
 	struct{
@@ -83,12 +84,14 @@ ufi fadd(ufi a, ufi b){
 	return(r);
 }
 
+int main(int argc, char *argv[]) {
 int main() {
 	int n=0;
 	int i=0;
 	ufi a;
 	ufi b;
 	ufi r;
+	if (argc > 1) srand((unsigned) time(NULL));
 	ufi q;
 	while(n<1000){//0018
 		a.u=(float)rand();//0000 0000 1101 0000 1101 1010 1111 1001
