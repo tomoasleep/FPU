@@ -60,9 +60,9 @@ ufi fadd(ufi a, ufi b){
 
 
 	r.si=a.si;
-	r.fr=a.fr+i-1;
-
-	/*printf("ee= ");*/q.u=0x0;q.u=ee;//print_bit(q);
+	if (a.fr<=1-i) r.fr=0; else r.fr=a.fr+i-1;
+	//printf("i=%d\n",i);
+	//printf("ee=            ");q.u=0x0;q.u=ee;print_bit(q);
 	if(i<0) {
 		r.ex=(ee<<(-i))&0x007FFFFF;
 	}
@@ -72,7 +72,7 @@ ufi fadd(ufi a, ufi b){
 			if (i==1) 
 			{
 				if(a.si==b.si) ee=ee+2*((ee&0x1)&( ((ee >> 1)&0x1)|round ));
-				else ee=ee+2*((ee&0x1)&( ((ee >> 1)&0x1)|round )); 
+				else           ee=ee+2*((ee&0x1)&( ((ee >> 1)&0x1)&~(round) )); 
 			}
 		}
 		if((ee>>i )>=0x1000000){r.fr=r.fr+1;r.ex=0; }
@@ -92,21 +92,21 @@ int main(int argc, char *argv[]) {
 	ufi r;
 	if (argc > 1) srand((unsigned) time(NULL));
 	ufi q;
-	while(n<1000){//0018
-		a.u=(float)rand();//0000 0000 1101 0000 1101 1010 1111 1001
-		b.u=(float)rand();//0000 0000 1111 1000 0101 1011 1110 1100
+	while(n<100000){//0018
+		a.u=-(float)rand();//1000 0000 1010 0101 1110 0101 1000 0000  
+		b.u=(float)rand(); //0000 0000 1101 0010 0011 1111 1101 0010 
 		r.f=a.f+b.f;
 		q=fadd(a,b);
-		if(r.u==q.u){i++;}
+		if(r.u==q.u||(r.fr==0&&q.fr==0)||(r.fr==0xFF&&q.fr==0xFF)){i++;}
 		else{
-			if(a.fr!=0&&b.fr!=0&&a.fr!=0xFF&&b.fr!=0xFF){
+			if((a.fr!=0&&b.fr!=0&&a.fr!=0xFF&&b.fr!=0xFF)){
 				print_bit(a);print_bit(b);
 				printf("WRONG_ANSWER = ");print_bit(q);
 				printf("CORRECT_ANSWER:");print_bit(r);
 				printf("\n\n");
 			}
 			else{i++;}
-		}
+	}
 		n++;
 	}
 	printf("RESULT:%f%%\n",(100*((float)i/(float)n)));
