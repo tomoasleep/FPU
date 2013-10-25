@@ -1,3 +1,4 @@
+fi
 god.pdf
 *~
 *.tmp
@@ -5,4 +6,4 @@ software/fi
 software/test
 software/difft.txt
 cpfadd.c
-hardware/example/*
+hardware/examples/*
