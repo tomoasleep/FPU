@@ -5,7 +5,7 @@ use IEEE.std_logic_1164.all;
 
 entity PRI_ENCODER_32TO5 is
   port (i : in std_logic_vector(31 downto 0);
-  	o : out std_logic_vector(5 downto 0);
+  	o : out std_logic_vector(4 downto 0);
 	Valid : out std_logic);
   end PRI_ENCODER_32TO5;
 
