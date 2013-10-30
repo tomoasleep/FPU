@@ -8,3 +8,9 @@ software/test
 software/difft.txt
 cpfadd.c
 hardware/examples/*
+hardware/work/*
+*.mti
+*.txt
+hardware/mksrc
+*.mpf
+*.wlf

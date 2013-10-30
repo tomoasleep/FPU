@@ -2,4 +2,88 @@ m255
 K3
 13
 cModel Technology
-d/home/lmnop
+Z0 d/home/lmnop
+T_opt
+V8Zk3FUick1b<QGNm1=4?K1
+04 7 14 work fmul_tb fmul_testbench 1
+=1-782bcbdd3692-527099a8-8306d-3cb1
+o-quiet -auto_acc_if_foreign -work work
+n@_opt
+OE;O;10.0c;49
+Z1 d/home/lmnop
+Efmul
+Z2 w1383109227
+Z3 DPx4 ieee 15 std_logic_arith 0 22 4`Y?g_lkdn;7UL9IiJck01
+Z4 DPx4 ieee 18 std_logic_unsigned 0 22 RYmj;=TK`k=k>D@Cz`zoB3
+Z5 DPx3 std 6 textio 0 22 G^o2zK;Vh4eVdKTVo98653
+Z6 DPx4 ieee 14 std_logic_1164 0 22 5=aWaoGZSMWIcH0i^f`XF1
+Z7 d/home/lmnop/FPU/hardware
+Z8 8/home/lmnop/FPU/hardware/fmul.vhd
+Z9 F/home/lmnop/FPU/hardware/fmul.vhd
+l0
+L6
+Vz]V1GeEYQS9fJD0:E[kaM3
+Z10 OE;C;10.0c;49
+32
+Z11 !s108 1383111770.321179
+Z12 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|/home/lmnop/FPU/hardware/fmul.vhd|
+Z13 !s107 /home/lmnop/FPU/hardware/fmul.vhd|
+Z14 o-work work -2002 -explicit
+Z15 tExplicit 1
+!s100 0@fMHhznVYof@5ol68Jb50
+Afmul32
+R3
+R4
+R5
+R6
+DEx4 work 4 fmul 0 22 z]V1GeEYQS9fJD0:E[kaM3
+l23
+L13
+V86f8QeMA2`0;n=7FGhU2@3
+!s100 >5;WNggaXh2@<``eRz0GL2
+R10
+32
+R11
+R12
+R13
+R14
+R15
+Efmul_tb
+Z16 w1383110908
+Z17 DPx4 ieee 16 std_logic_textio 0 22 nS@;e8VD1o]DCVjBMSZYk3
+R3
+R4
+R5
+R6
+R7
+Z18 8/home/lmnop/FPU/hardware/fmul_tb.vhd
+Z19 F/home/lmnop/FPU/hardware/fmul_tb.vhd
+l0
+L8
+V40NMVJ]<hIm3TFEL=lOjJ2
+!s100 kEQGRn<eI=_>YLiYlS_Vn0
+R10
+32
+Z20 !s108 1383111770.343352
+Z21 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|/home/lmnop/FPU/hardware/fmul_tb.vhd|
+Z22 !s107 /home/lmnop/FPU/hardware/fmul_tb.vhd|
+R14
+R15
+Afmul_testbench
+R17
+R3
+R4
+R5
+R6
+Z23 DEx4 work 7 fmul_tb 0 22 40NMVJ]<hIm3TFEL=lOjJ2
+l38
+L11
+Z24 Vzfn346hLgEmzH48[kUOjS3
+Z25 !s100 5ADGnSJKPUlbBmXaEX@gQ3
+R10
+32
+R20
+R21
+R22
+R14
+R15
