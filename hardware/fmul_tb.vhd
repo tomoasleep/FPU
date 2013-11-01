@@ -9,26 +9,28 @@ ENTITY fmul_tb IS
 	END fmul_tb;
 
 ARCHITECTURE FMUL_TESTBENCH OF fmul_tb IS 
-  -- Component Declaration for the Unit Under Test (UUT)
+	-- Component Declaration for the Unit Under Test (UUT)
 	COMPONENT FMUL
 		PORT(
-			    A            : in  std_logic_vector(31 downto 0);
-			    B            : in  std_logic_vector(31 downto 0);
-			    clk          : in  std_logic;
-			    R            : out std_logic_vector(31 downto 0) 
+			    A: in std_logic_vector(31 downto 0);
+			    B: in std_logic_vector(31 downto 0);
+			    doit : in std_logic;
+			    clk  : in  std_logic;
+			    R: out std_logic_vector(31 downto 0) 
 		    );
 	END COMPONENT;
 
-  --Inputs
+	--Inputs
 	signal iA  : std_logic_vector(31 downto 0) := (others => '0');
 	signal iB  : std_logic_vector(31 downto 0) := (others => '0');
 
-  --Outputs
+	--Outputs
 	signal r : std_logic_vector(31 downto 0) := (others => '0');
 
-  --Signals
-	signal state: integer range 0 to 1 :=0;
+	--Signals
+	signal state: integer range 0 to 9 :=0;
 	signal simclk: std_logic := '0';
+	signal do_it: std_logic :='0';
 
 	file A_LIST: text open read_mode is "alist.txt";
 	file B_LIST: text open read_mode is "blist.txt";
@@ -39,6 +41,7 @@ BEGIN
 	uut: FMUL PORT MAP (
 				   A => iA,
 				   B => iB,
+				   doit => do_it,
 				   clk=>simclk,
 				   R => r
 			   );
@@ -60,6 +63,11 @@ BEGIN
 					iB<=vB;
 					state<=1;
 				when 1 =>
+					do_it<= not do_it;
+					state<=state+1;
+				when 2|3|4|5|6|7|8 =>
+					state<=state+1;
+				when 9 =>
 					hwrite(li_A,r,right,40);
 					writeline(RESULT,li_A);
 					state<=0;

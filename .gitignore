@@ -9,6 +9,7 @@ software/difft.txt
 cpfadd.c
 hardware/examples/*
 hardware/work/*
+hardware/work/_info
 *.mti
 *.txt
 hardware/mksrc
