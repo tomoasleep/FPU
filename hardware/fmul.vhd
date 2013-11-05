@@ -39,11 +39,22 @@ begin
 					R  <=sign&"1111111100000000000000000000000";
 					exception<=1;
 				else
-					exponent<=exponent-127;
-					if (stage(21 downto 0) > 0) then
-						fraction<=(stage(47 downto 23)&"00") +(x"000000"&stage(22)& "00" );
+					if (stage(47)='1') then
+						exponent<=exponent-127;
+						if (stage(22 downto 0) > 0) then
+							fraction<=(stage(47 downto 24)&"000") +("000"&x"00000"&stage(23)& "000" );
+						else
+							fraction<=(stage(47 downto 24)&"000") +("000"&x"00000"&(stage(23) and stage(24) )& "000" );
+						end if;
+
+
 					else
-						fraction<=(stage(47 downto 23)&"00") +(x"000000"&(stage(22) and stage(23) )& "00" );
+						exponent<=exponent-127;
+						if (stage(21 downto 0) > 0) then
+							fraction<=(stage(47 downto 23)&"00") +(x"000000"&stage(22)& "00" );
+						else
+							fraction<=(stage(47 downto 23)&"00") +(x"000000"&(stage(22) and stage(23) )& "00" );
+						end if;
 					end if;
 					exception<=0;
 				end if;
