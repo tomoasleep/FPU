@@ -25,9 +25,9 @@ begin
 	begin
 		case(state) is
 			when 0 =>
-				exponent<=("0"&A(8 downto 1)) + ("0"&B(8 downto 1));
-				stage <= ("0"&A(31 downto 9)) * ("0"&B(31 downto 9));
-				sign    <= ( A(0) xor B(0) );
+				exponent<=("0"&A(30 downto 23)) + ("0"&B(30 downto 23));
+				stage <= ("1"&A(22 downto 0)) * ("1"&B(22 downto 0));
+				sign    <= ( A(31) xor B(31) );
 				state<=1;
 
 			when 1 =>
@@ -53,7 +53,7 @@ begin
 					when 0 => 
 						if (fraction(26)='1') then
 							R<=sign&(exponent(7 downto 0)+1)&fraction(25 downto 3);
-						elsif (fraction(26 downto 1)="01111111111111111111111111") then
+						elsif (fraction(25 downto 0)="01111111111111111111111111") then
 							R<=sign&(exponent(7 downto 0)+1)&"000000000000000000000000000";
 						else
 							R<=sign&exponent(7 downto 0)&fraction(24 downto 2);

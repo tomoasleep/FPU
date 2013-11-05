@@ -16,7 +16,7 @@ typedef union floatint{
 void fprint_bit(ufi u32,FILE *fp){//bit情報の表示
 	int i=31;
 	while(i>=0){
-		fprintf(fp,"%d",((u32.u >> i)&0x00000001));
+		fprintf(fp,"%d",((u32.u >> (i))&0x00000001));
 		i--;
 	}
 	fprintf(fp,"\n");
