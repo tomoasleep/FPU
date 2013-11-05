@@ -14,7 +14,6 @@ ARCHITECTURE FMUL_TESTBENCH OF fmul_tb IS
 		PORT(
 			    A: in std_logic_vector(31 downto 0);
 			    B: in std_logic_vector(31 downto 0);
-			    doit : in std_logic;
 			    clk  : in  std_logic;
 			    R: out std_logic_vector(31 downto 0) 
 		    );
@@ -30,7 +29,6 @@ ARCHITECTURE FMUL_TESTBENCH OF fmul_tb IS
 	--Signals
 	signal state: integer range 0 to 9 :=0;
 	signal simclk: std_logic := '0';
-	signal do_it: std_logic :='0';
 
 	file A_LIST: text open read_mode is "alist.txt";
 	file B_LIST: text open read_mode is "blist.txt";
@@ -41,7 +39,6 @@ BEGIN
 	uut: FMUL PORT MAP (
 				   A => iA,
 				   B => iB,
-				   doit => do_it,
 				   clk=>simclk,
 				   R => r
 			   );
@@ -56,19 +53,18 @@ BEGIN
 			case (state) is
 				when 0 =>
 					readline(A_LIST,li_A);
-					hread(li_A,vA);
+					read(li_A,vA);
 					iA<=vA;
 					readline(B_LIST,li_B);
-					hread(li_B,vB);
+					read(li_B,vB);
 					iB<=vB;
 					state<=1;
 				when 1 =>
-					do_it<= not do_it;
 					state<=state+1;
 				when 2|3|4|5|6|7|8 =>
 					state<=state+1;
 				when 9 =>
-					hwrite(li_A,r,right,40);
+					write(li_A,r);
 					writeline(RESULT,li_A);
 					state<=0;
 

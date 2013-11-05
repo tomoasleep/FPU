@@ -31,7 +31,7 @@ int main(int argc, char *argv[]){
 	ufi a;
 	ufi b;
 	ufi r;
-	if (argc > 2) srand((unsigned) time(NULL));
+	if (argc <= 2) srand((unsigned) time(NULL));
 	cases=(atoi(argv[1]));
 	afile=fopen("alist.txt","w");
 	bfile=fopen("blist.txt","w");
