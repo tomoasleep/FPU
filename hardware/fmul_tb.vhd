@@ -27,8 +27,8 @@ ARCHITECTURE FMUL_TESTBENCH OF fmul_tb IS
 	signal r : std_logic_vector(31 downto 0) := (others => '0');
 
 	--Signals
-	signal state: integer range 0 to 9 :=0;
-	signal simclk: std_logic := '0';
+	signal state: integer range 0 to 2 :=0;
+	signal simclk: std_logic;
 
 	file A_LIST: text open read_mode is "alist.txt";
 	file B_LIST: text open read_mode is "blist.txt";
@@ -61,9 +61,7 @@ BEGIN
 					state<=1;
 				when 1 =>
 					state<=state+1;
-				when 2|3|4|5|6|7|8 =>
-					state<=state+1;
-				when 9 =>
+				when 2 =>
 					write(li_A,r);
 					writeline(RESULT,li_A);
 					state<=0;
