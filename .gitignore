@@ -10,6 +10,7 @@ cpfadd.c
 hardware/examples/*
 hardware/work/*
 hardware/work/_info
+hardware/FADD/fadd.c
 *.mti
 *.txt
 hardware/mksrc

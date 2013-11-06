@@ -67,7 +67,13 @@ begin
 						elsif (fraction(25 downto 0)="01111111111111111111111111") then
 							R<=sign&(exponent(7 downto 0)+1)&"000000000000000000000000000";
 						else
-							R<=sign&exponent(7 downto 0)&fraction(24 downto 2);
+							if (exponent(7 downto 0) = 0) then
+								R<=sign&x"00"&"000"&x"00000";
+							elsif (exponent(7 downto 0) = x"FF") then
+								R<=sign&x"FF"&"000"&x"00000";
+							else
+								R<=sign&exponent(7 downto 0)&fraction(24 downto 2);
+							end if;
 						end if; 
 						state<=0;
 				end case;
