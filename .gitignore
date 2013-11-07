@@ -1,3 +1,7 @@
+hardware/FADD/fadd/*
+hardware/FADD/mksrc
+hardware/FMUL/fmul/*
+hardware/FMUL/mksrc 
 work/*
 fi
 god.pdf
