@@ -39,7 +39,7 @@ int main(int argc, char *argv[]){
 	while(i<cases){
 	a.f=(float)rand();
 	b.f=(float)rand();
-	r.f=a.f+b.f;
+	r.f=(a.f + b.f);
 	fprint_bit(a,afile);
 	fprint_bit(b,bfile);
 	fprint_bit(r,answerfile);

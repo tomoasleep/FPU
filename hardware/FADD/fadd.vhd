@@ -51,9 +51,7 @@ architecture fadd32 of FADD is
 	signal pri_output : std_logic_vector(4 downto 0);
 	signal Winnerfrc :std_logic_vector(26 downto 0);
 	signal Loserfrc :std_logic_vector(26 downto 0);
-	signal a_is_greater_than_b : std_logic;
 	signal state	:integer range 0 to 2 := 0;
-	signal exception :integer range 0 to 1 := 1;
 	signal exponent: std_logic_vector(7 downto 0);
 	signal sign : std_logic;
 	signal fraction: std_logic_vector(27 downto 0);
@@ -92,7 +90,6 @@ begin
 					Loserfrc  <= bsr_result;
 					exponent  <= A(30 downto 23);
 					sign<=A(31);
-					a_is_greater_than_b<='1';
 					rev_input <= B;
 				else
 					Winnerfrc <= "1"&B(22 downto 0)&"000";
@@ -101,12 +98,11 @@ begin
 					Loserfrc  <= bsr_result;
 					exponent  <= B(30 downto 23);
 					sign<=B(31);
-					a_is_greater_than_b<='0';
 					rev_input <= A;
 				end if;
 			when 1 =>
 				state<=2;
-				if A(31)=B(31) 
+				if (A(31)=B(31)) 
 				then --足し算
 					if (rev_output<bsr_value)
 					then
@@ -116,10 +112,17 @@ begin
 					end if;
 					pri_input <= fraction&"0000";
 				else --引き算
+					if (rev_output<bsr_value)
+					then
+						fraction<="0"&(Winnerfrc(26 downto 1)-Loserfrc(26 downto 1))&"1";
+					else
+						fraction<="0"&(Winnerfrc-Loserfrc);
+					end if;
 				end if;
 
 			when 2 =>
 				state<=0;
+				pri_input <= fraction&"0000";
 				case (pri_output) is
 					when "11111" =>
 						if (exponent/=x"FE") then
@@ -147,7 +150,7 @@ begin
 							bsl_data <= x"0"&fraction(24 downto 2);
 							bsl_value <= "000"&(30 - pri_output);
 							R <= sign&(exponent -( "000"&(30 - pri_output)) )
-							     &( bsr_result(22 downto 0));
+							     &( bsl_result(22 downto 0));
 						else
 							R <= sign&"000"&x"0000000";
 						end if;

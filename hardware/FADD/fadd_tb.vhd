@@ -10,6 +10,7 @@ ENTITY fadd_tb IS
 
 ARCHITECTURE FADD_TESTBENCH OF fadd_tb IS 
 	-- Component Declaration for the Unit Under Test (UUT)
+
 	COMPONENT FADD
 		PORT(
 			    A: in std_logic_vector(31 downto 0);
@@ -22,6 +23,7 @@ ARCHITECTURE FADD_TESTBENCH OF fadd_tb IS
 	--Inputs
 	signal iA  : std_logic_vector(31 downto 0) := (others => '0');
 	signal iB  : std_logic_vector(31 downto 0) := (others => '0');
+
 
 	--Outputs
 	signal r : std_logic_vector(31 downto 0) := (others => '0');
@@ -46,6 +48,7 @@ BEGIN
 	process(simclk)
 		variable li_A: line;
 		variable li_B: line;
+		variable li_R: line;
 		variable vA: std_logic_vector(31 downto 0);
 		variable vB: std_logic_vector(31 downto 0);
 	begin
@@ -61,9 +64,9 @@ BEGIN
 					state<=1;
 				when 1 =>
 					state<=state+1;
-				when 2 =>
-					write(li_A,r);
-					writeline(RESULT,li_A);
+				when 2 => 
+					write(li_R,r);
+					writeline(RESULT,li_R);
 					state<=0;
 
 			end case;
