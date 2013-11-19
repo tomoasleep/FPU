@@ -80,14 +80,14 @@ begin
 					<=(stage((47+(48*state2)) downto (23+(48*state2)))&"00") +(x"000000"&(stage(22+(48*state2)) and stage(23+(48*state2)) )& "00" );
 				end if;
 			end if;
-			exception(state2)<=0;
+			exception(state2)<='0';
 		end if;
 
 
 
 
 		--when 2 =>
-		if (exception(state3)=0) then
+		if (exception(state3)='0') then
 			if (fraction(26+(27*state3))='1') then
 				R<=sign(state3)&(exponent((7+(9*state3)) downto (9*state3))+1)
 				   &fraction((25+(27*state3)) downto (3+(27*state3)));
