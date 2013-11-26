@@ -49,22 +49,22 @@ begin
   begin
     if rising_edge(clk) then
       if st1_fraction(47) = '1' then
-        if unsigned(st1_fraction(22 downto 0)) > 0 then
-          fraction_shifted := st1_fraction(47 downto 24) & "000";
-          fraction_guard := (3 => st1_fraction(23), others => '0');
-        else
+        if unsigned(st1_fraction(22 downto 0)) = 0 then
           fraction_shifted := st1_fraction(47 downto 24) & "000";
           fraction_guard :=
             (3 => st1_fraction(23) and st1_fraction(24), others => '0');
+        else
+          fraction_shifted := st1_fraction(47 downto 24) & "000";
+          fraction_guard := (3 => st1_fraction(23), others => '0');
         end if;
       else
-        if unsigned(st1_fraction(21 downto 0)) > 0 then
-          fraction_shifted := st1_fraction(47 downto 23) & "00";
-          fraction_guard := (2 => st1_fraction(22), others => '0');
-        else
+        if unsigned(st1_fraction(21 downto 0)) = 0 then
           fraction_shifted := st1_fraction(47 downto 23) & "00";
           fraction_guard :=
             (2 => st1_fraction(22) and st1_fraction(23), others => '0');
+        else
+          fraction_shifted := st1_fraction(47 downto 23) & "00";
+          fraction_guard := (2 => st1_fraction(22), others => '0');
         end if;
       end if;
 
@@ -102,7 +102,7 @@ begin
             R_fraction <= st2_fraction(25 downto 3);
 
           elsif st2_fraction(25 downto 0) = fraction_roundup then
-            R_exponent <= std_logic_vector(unsigned(st2_exponent) + 1);
+            R_exponent <= std_logic_vector(unsigned(st2_exponent(7 downto 0)) + 1);
             R_fraction <= (others => '0');
 
           elsif st2_exponent(7 downto 0) = x"00" then
