@@ -1,114 +1,121 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
-use IEEE.std_logic_unsigned.all;
+use IEEE.numeric_std.all;
 
+entity fmul is
+  port (A   : in std_logic_vector(31 downto 0);
+        B   : in std_logic_vector(31 downto 0);
+        clk : in std_logic;
+        R   :out std_logic_vector(31 downto 0));
+end fmul;
 
-entity FMUL is
-	port (A   : in std_logic_vector(31 downto 0);
-	      B   : in std_logic_vector(31 downto 0);
-	      clk : in std_logic;
-	      R   :out std_logic_vector(31 downto 0));
-end FMUL;
+architecture behave of fmul is
+  type exception is (ok, overflow, underflow);
 
-architecture fmul32 of FMUL is
+  alias A_sign : std_logic is A(31);
+  alias A_exponent : std_logic_vector(7 downto 0) is A(30 downto 23);
+  alias A_fraction : std_logic_vector(22 downto 0) is A(22 downto 0);
 
-	--SIGNALS
-	signal state1	:integer range 0 to 2 := 1;
-	signal state2	:integer range 0 to 2 := 2;
-	signal state3	:integer range 0 to 2 := 0;
-	signal exception :std_logic_vector (2 downto 0);
-	signal exponent: std_logic_vector(26 downto 0);
-	signal sign : std_logic_vector(2 downto 0);
-	signal fraction: std_logic_vector(80 downto 0);
-	signal stage : std_logic_vector(143 downto 0);
+  alias B_sign : std_logic is B(31);
+  alias B_exponent : std_logic_vector(7 downto 0) is B(30 downto 23);
+  alias B_fraction : std_logic_vector(22 downto 0) is B(22 downto 0);
 
+  alias R_sign : std_logic is R(31);
+  alias R_exponent : std_logic_vector(7 downto 0) is R(30 downto 23);
+  alias R_fraction : std_logic_vector(22 downto 0) is R(22 downto 0);
+
+  signal st1_sign: std_logic;
+  signal st1_exponent: std_logic_vector(8 downto 0);
+  signal st1_fraction: std_logic_vector(47 downto 0);
+
+  signal st2_sign: std_logic;
+  signal st2_exponent: std_logic_vector(8 downto 0);
+  signal st2_fraction: std_logic_vector(26 downto 0);
+  signal st2_exception: exception;
+
+  constant fraction_roundup: std_logic_vector(25 downto 0) := (25 => '0', others => '1');
 begin
-	process(clk)
-	begin
+  stage1: process(A, B) begin
+    st1_exponent(8 downto 0) <= std_logic_vector(unsigned('0' & A_exponent) +
+      unsigned('0' & B_exponent));
+    st1_fraction <= std_logic_vector(unsigned('1' & A_fraction) *
+                    unsigned('1' & B_fraction));
+    st1_sign <= A_sign xor B_sign;
+  end process;
 
-		case(state1) is
-			when 0 =>
-				state1<=2;
-				state2<=0;
-				state3<=1;
+  stage2: process(clk, st1_exponent, st1_fraction, st1_sign)
+    variable fraction_shifted : std_logic_vector(26 downto 0);
+    variable fraction_guard : std_logic_vector(26 downto 0);
+  begin
+    if rising_edge(clk) then
+      if st1_fraction(47) = '1' then
+        if unsigned(st1_fraction(22 downto 0)) > 0 then
+          fraction_shifted := st1_fraction(47 downto 24) & "000";
+          fraction_guard := (3 => st1_fraction(23), others => '0');
+        else
+          fraction_shifted := st1_fraction(47 downto 24) & "000";
+          fraction_guard :=
+            (3 => st1_fraction(23) and st1_fraction(24), others => '0');
+        end if;
+      else
+        if unsigned(st1_fraction(21 downto 0)) > 0 then
+          fraction_shifted := st1_fraction(47 downto 23) & "00";
+          fraction_guard := (2 => st1_fraction(22), others => '0');
+        else
+          fraction_shifted := st1_fraction(47 downto 23) & "00";
+          fraction_guard :=
+            (2 => st1_fraction(22) and st1_fraction(23), others => '0');
+        end if;
+      end if;
 
-			when 1 =>
-				state1<=0;
-				state2<=1;
-				state3<=2;
-			when 2 =>
-				state1<=1;
-				state2<=2;
-				state3<=0;
-		end case;
+      st2_exponent <= std_logic_vector(unsigned(st1_exponent) - 127);
+      st2_fraction <= std_logic_vector(unsigned(fraction_shifted) +
+                                       unsigned(fraction_guard));
 
-		--case(state) is
-		--	when 0 =>
-		exponent((8 + (state1 * 9)) downto (state1 * 9))<=("0"&A(30 downto 23)) + ("0"&B(30 downto 23));
-		stage((47 + (state1 * 48)) downto (state1 * 48)) <= ("1"&A(22 downto 0)) * ("1"&B(22 downto 0));
-		sign(state1)    <= ( A(31) xor B(31) );
+      st2_sign <= st1_sign;
+      if unsigned(st1_exponent) < 127 then
+        st2_exception <= underflow;
+      elsif unsigned(st1_exponent) > 381 then
+        st2_exception <= overflow;
+      else
+        st2_exception <= ok;
+      end if;
+    end if;
+  end process;
 
+  stage3: process(clk, st2_exponent, st2_fraction, st2_exception, st2_sign) begin
+    if rising_edge(clk) then
+      case st2_exception is
+        when underflow =>
+          R_sign <= st2_sign;
+          R_exponent <= (others => '0');
+          R_fraction <= (others => '0');
+        when overflow =>
+          R_sign <= st2_sign;
+          R_exponent <= (others => '1');
+          R_fraction <= (others => '0');
+        when ok =>
+          R_sign <= st2_sign;
 
+          if st2_fraction(26) = '1' then
+            R_exponent <= std_logic_vector(unsigned(st2_exponent(7 downto 0)) + 1);
+            R_fraction <= st2_fraction(25 downto 3);
 
-		--	when 1 =>
-		if exponent((8+(state2 * 9)) downto (state2 * 9)) < 127 then
-			exponent((8+(state2*9))downto(state2*9))<="000000000";
-			exception(state2)<='1';
-		elsif exponent((8+(state2 * 9)) downto (state2 * 9)) > 381 then
-			exponent((8+(state2*9))downto(state2*9))<="111111111";
-			exception(state2)<='1';
-		else
-			if (stage(47 + (state2 * 48))='1') then
-				exponent((8+(state2 * 9)) downto (state2 * 9))
-				<=exponent((8+(state2 * 9)) downto (state2 * 9))-127;
-				if (stage((22 + (state2 * 48)) downto (state2 * 48)) > 0) then
-					fraction((26+(27*state2)) downto (27*state2))<=(stage((47 + (state2 * 48)) downto (24+(state2*48)))&"000")
-					+("000"&x"00000"&stage(23+(state2*48))& "000" );
-				else
-					fraction((26+(27*state2)) downto (27*state2))<=(stage((47+(48*state2)) downto (24+(48*state2)))&"000")
-					+("000"&x"00000"&(stage(23+(state2*48)) and stage(24+(48*state2)) )& "000" );
-				end if;
+          elsif st2_fraction(25 downto 0) = fraction_roundup then
+            R_exponent <= std_logic_vector(unsigned(st2_exponent) + 1);
+            R_fraction <= (others => '0');
 
-
-			else
-				exponent(8+(state2*9) downto (state2*9))<=exponent(8+(state2*9) downto (state2*9))-127;
-				if (stage((21+(48*state2)) downto (48*state2)) > 0) then
-					fraction((26+(27*state2)) downto (27*state2))
-					<=(stage((47+(48*state2)) downto (23+(48*state2)))&"00") +(x"000000"&stage(22+(48*state2))& "00" );
-				else
-					fraction((26+(27*state2)) downto (27*state2))
-					<=(stage((47+(48*state2)) downto (23+(48*state2)))&"00") +(x"000000"&(stage(22+(48*state2)) and stage(23+(48*state2)) )& "00" );
-				end if;
-			end if;
-			exception(state2)<='0';
-		end if;
-
-
-
-
-		--when 2 =>
-		if (exception(state3)='0') then
-			if (fraction(26+(27*state3))='1') then
-				R<=sign(state3)&(exponent((7+(9*state3)) downto (9*state3))+1)
-				   &fraction((25+(27*state3)) downto (3+(27*state3)));
-			elsif (fraction((25+(27*state3)) downto (27*state3))="01111111111111111111111111") then
-				R<=sign(state3)&(exponent((7+(9*state3)) downto (6*state3))+1)&"000000000000000000000000000";
-			else
-				if (exponent((7+(9*state3)) downto (9*state3)) = 0) then
-					R<=sign(state3)&x"00"&"000"&x"00000";
-				elsif (exponent((7+(9*state3)) downto (9*state3)) = x"FF") then
-					R<=sign(state3)&x"FF"&"000"&x"00000";
-				else
-					R<=sign(state3)&exponent((7+(9*state3)) downto (9*state3))
-					   &fraction((24+(27*state3)) downto (2+(27*state3)));
-				end if;
-			end if;
-		elsif (exponent((8+(9*state3))downto(9*state3))="000000000") then
-			R<=sign(state3) & x"00" & "000"&x"00000";
-		else
-			R<=sign(state3) & x"FF" & "000"&x"00000";
-		end if;
-	--end case;
-	end process;
-end;
-
+          elsif st2_exponent(7 downto 0) = x"00" then
+            R_exponent <= (others => '0');
+            R_fraction <= (others => '0');
+          elsif st2_exponent(7 downto 0) = x"FF" then
+            R_exponent <= (others => '1');
+            R_fraction <= (others => '0');
+          else
+            R_exponent <= st2_exponent(7 downto 0);
+            R_fraction <= st2_fraction(24 downto 2);
+          end if;
+      end case;
+    end if;
+  end process;
+end behave;
