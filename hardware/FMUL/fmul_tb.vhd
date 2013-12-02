@@ -50,21 +50,22 @@ BEGIN
 		variable vB: std_logic_vector(31 downto 0);
 	begin
 		if rising_edge(simclk) then
+
+			readline(A_LIST,li_A);
+			read(li_A,vA);
+			iA<=vA;
+			readline(B_LIST,li_B);
+			read(li_B,vB);
+			iB<=vB;
 			case (state) is
 				when 0 =>
-					readline(A_LIST,li_A);
-					read(li_A,vA);
-					iA<=vA;
-					readline(B_LIST,li_B);
-					read(li_B,vB);
-					iB<=vB;
 					state<=1;
 				when 1 =>
 					state<=state+1;
 				when 2 =>
 					write(li_A,r);
 					writeline(RESULT,li_A);
-					state<=0;
+					state<=2;
 
 			end case;
 		end if;

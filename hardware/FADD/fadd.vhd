@@ -16,17 +16,20 @@ architecture fadd32 of FADD is
 	component BARREL_LEFT
 		port( D : in  std_logic_vector(26 downto 0);
 		      v : in  std_logic_vector(7 downto 0);
+		clk : in std_logic;
 		      R : out std_logic_vector(26 downto 0));
 	end component;
 	
 	component BARREL_RIGHT
 		port( D : in  std_logic_vector(26 downto 0);
 		      v : in  std_logic_vector(7 downto 0);
+		clk : in std_logic;
 		      R : out std_logic_vector(26 downto 0));
 	end component;
 
 	component REV_ENCODER
 		port( i : in  std_logic_vector(31 downto 0);
+		clk : in std_logic;
 		      o : out std_logic_vector( 4 downto 0)
 		      );
 	end component;
@@ -34,6 +37,7 @@ architecture fadd32 of FADD is
 
 	component PRI_ENCODER
 		port( i : in  std_logic_vector(31 downto 0);
+		clk : in std_logic;
 		      o : out std_logic_vector( 4 downto 0)
 		      );
 	end component;
@@ -59,21 +63,25 @@ begin
 	port map(
 			D => bsl_data,
 			v => bsl_value,
+			clk => clk,
 			R => bsl_result	 );
 	bsr: BARREL_RIGHT
 	port map(
 			D => bsr_data,
 			v => bsr_value,
+			clk => clk,
 			R => bsr_result	 );
 
 	rev: REV_ENCODER
 	port map(
 			i => rev_input,
+			clk => clk,
 			o => rev_output);
 
 	pri: PRI_ENCODER
 	port map(
 			i => pri_input,
+			clk => clk,
 			o => pri_output);
 
 	process(clk)
