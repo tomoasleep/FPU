@@ -29,7 +29,7 @@ ARCHITECTURE FADD_TESTBENCH OF fadd_tb IS
 	signal r : std_logic_vector(31 downto 0) := (others => '0');
 
 	--Signals
-	signal state: integer range 0 to 2 :=0;
+	signal state: integer range 0 to 3 :=0;
 	signal simclk: std_logic;
 
 	file A_LIST: text open read_mode is "alist.txt";
@@ -62,12 +62,18 @@ BEGIN
 					read(li_B,vB);
 					iB<=vB;
 					state<=1;
-				when 1 =>
+				when 1|2 =>
 					state<=state+1;
-				when 2 => 
+				when 3 => 
 					write(li_R,r);
 					writeline(RESULT,li_R);
-					state<=0;
+					readline(A_LIST,li_A);
+					read(li_A,vA);
+					iA<=vA;
+					readline(B_LIST,li_B);
+					read(li_B,vB);
+					iB<=vB;
+					state<=1;
 
 			end case;
 		end if;
