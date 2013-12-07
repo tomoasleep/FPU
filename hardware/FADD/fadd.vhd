@@ -152,21 +152,25 @@ begin
 			pri_output2<=pri_output1;
 			exponent2<=exponent1;
 			sign2<=sign1;
+			bsl_data <= x"0"&fraction1(24 downto 2);
+			bsl_value <= "000"&(30 - pri_output1);
 		end if;
 	end process;
 
-	bsl_data <= x"0"&fraction2(24 downto 2);
-	bsl_value <= "000"&(30 - pri_output2);
-	
+
+
 	R<= sign2&(exponent2 + 1)&
 	    ((fraction2(26 downto 4) + (fraction2(3) and (fraction2(4) or fraction2(2) or fraction2(1) or fraction2(0))))) when(pri_output2="11111" and exponent2/=x"FE") else
 	    sign2&x"FF"&"000"&x"00000" when(pri_output2="11111" )else
+
 	    sign2&(exponent2 + 1)&"000"&x"00000" when(pri_output2="11110" and fraction2(26 downto 2)=x"1FFFFFF") else
 	    sign2&(exponent2)&(fraction2(25 downto 3)
 	    + (fraction2(2) and (fraction2(3) or fraction2(1) or fraction2(0)))) when(pri_output2="11110") else
+
 	    sign2&(exponent2)&"000"&x"00000" when(pri_output2="11101" and fraction2(25 downto 1) = x"1FFFFFF") else
 	    sign2&(exponent2 - 1)&fraction2(24 downto 2)
 	    + (fraction2(1) and (fraction2(2) or fraction2(0))) when(pri_output2="11101" )else
-	    sign2&(exponent2 -("000"&(30-pri_output2))) & bsl_result(22 downto 0) when(exponent2>("000"&(30-pri_output2)))else
+
+	    sign2&(exponent2 -("000"&(30-pri_output2))) & bsl_result(23 downto 1) when(exponent2>("000"&(30-pri_output2)))else
 	    sign2&"000"&x"0000000";
 end;
