@@ -136,9 +136,9 @@ begin
 	--then --足し算
 	--	if (rev_output<bsr_value)
 	--	then
-	fraction1 <= ("0"&Winnerfrc1)+("0"&bsr_result1(26 downto 1)&"1") when((sign_same1='1') and (rev_output1 <  exp_sub1)) else
-		     ("0"&Winnerfrc1)+("0"&bsr_result1) 		      when((sign_same1='1') and (rev_output1 >= exp_sub1)) else
-		     ("0"&Winnerfrc1)-("0"&bsr_result1(26 downto 1)&"1") when(rev_output1 < exp_sub1)else
+	fraction1 <= ("0"&Winnerfrc1)+("0"&bsr_result1(26 downto 1)&"1") when((sign_same1='1') and ((rev_output1+3) <  exp_sub1)) else
+		     ("0"&Winnerfrc1)+("0"&bsr_result1) 		      when(sign_same1='1') else
+		     ("0"&Winnerfrc1)-("0"&bsr_result1(26 downto 1)&"1") when((rev_output1+3) < exp_sub1)else
 		     ("0"&Winnerfrc1)-("0"&bsr_result1);
 		     --	end if;
 		     --end if;
@@ -157,39 +157,16 @@ begin
 
 	bsl_data <= x"0"&fraction2(24 downto 2);
 	bsl_value <= "000"&(30 - pri_output2);
-	--	when 2 =>
-	--		state<=0;
-	--case (pri_output) is
-	--	when "11111" =>
-	--		if (exponent/=x"FE") then
+	
 	R<= sign2&(exponent2 + 1)&
 	    ((fraction2(26 downto 4) + (fraction2(3) and (fraction2(4) or fraction2(2) or fraction2(1) or fraction2(0))))) when(pri_output2="11111" and exponent2/=x"FE") else
-	    --		else 
 	    sign2&x"FF"&"000"&x"00000" when(pri_output2="11111" )else
-	    --		end if;
-	    --	when "11110" =>
-	    --		if (fraction(26 downto 2)=x"1FFFFFF") then
 	    sign2&(exponent2 + 1)&"000"&x"00000" when(pri_output2="11110" and fraction2(26 downto 2)=x"1FFFFFF") else
-	    --		else
 	    sign2&(exponent2)&(fraction2(25 downto 3)
 	    + (fraction2(2) and (fraction2(3) or fraction2(1) or fraction2(0)))) when(pri_output2="11110") else
-	    --		end if;
-	    --	when "11101" =>
-	    --		if (fraction(25 downto 1) = x"1FFFFFF") then
 	    sign2&(exponent2)&"000"&x"00000" when(pri_output2="11101" and fraction2(25 downto 1) = x"1FFFFFF") else
-	    --		else
 	    sign2&(exponent2 - 1)&fraction2(24 downto 2)
 	    + (fraction2(1) and (fraction2(2) or fraction2(0))) when(pri_output2="11101" )else
-	    --		end if;
-	    --	when others =>
 	    sign2&(exponent2 -("000"&(30-pri_output2))) & bsl_result(22 downto 0) when(exponent2>("000"&(30-pri_output2)))else
 	    sign2&"000"&x"0000000";
---		if (exponent > ("000"& (30 - pri_output))) then
-
---		else
---		end if;
---end case;
---end case;
---end if;
---end process;
 end;
