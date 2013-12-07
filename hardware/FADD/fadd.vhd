@@ -78,24 +78,12 @@ begin
 			i => pri_input,
 			o => pri_output1);
 
-	--process(clk)
-	--variable Winnerfrc :std_logic_vector(26 downto 0);
-	--variable Loserfrc :std_logic_vector(26 downto 0);
-	--variable fraction_sub : std_logic_vector(27 downto 0);
-	--variable result_sub :std_logic_vector(31 downto 0);
-	--begin
-	--if rising_edge(clk) then
-	--case(state) is
-	--	when 0 => --大小比較し、小さい方を指数差分シフト
-	--		state<=1;
-	--if (A(30 downto 0)>=B(30 downto 0)) then
 	Winnerfrc0 <= "1"&A(22 downto 0)&"000" 		when (A(30 downto 0)>=B(30 downto 0)) else
 		      "1"&B(22 downto 0)&"000";
 	bsr_data  <=  "1"&B(22 downto 0)&"000" 		when (A(30 downto 0)>=B(30 downto 0)) else
 		      "1"&A(22 downto 0)&"000";
 	bsr_value <= A(30 downto 23)-B(30 downto 23) 	when (A(30 downto 0)>=B(30 downto 0)) else
 		     B(30 downto 23)-A(30 downto 23); 	
-	--Loserfrc  := bsr_result;
 	exponent0  <= A(30 downto 23)			when (A(30 downto 0)>=B(30 downto 0)) else
 		      B(30 downto 23);
 	sign0<=A(31) 					when (A(30 downto 0)>=B(30 downto 0)) else
@@ -107,15 +95,6 @@ begin
 
 	sign_same0<='1' when A(31)=B(31) else
 		    '0';
-	--			else
-	--				Winnerfrc0 <= "1"&B(22 downto 0)&"000";
-	--				bsr_data  <= "1"&A(22 downto 0)&"000";
-	--				bsr_value <= B(30 downto 23)-A(30 downto 23); 	
-	--				--Loserfrc  := bsr_result;
-	--				exponent0  <= B(30 downto 23);
-	--				sign0<=B(31);
-	--				rev_input <= A;
-	--			end if;
 	latch_0_1:process(clk)
 	begin
 		if rising_edge(clk) then
@@ -128,20 +107,10 @@ begin
 			sign_same1<=sign_same0;
 		end if;
 	end process;
-	--	when 1 =>
-	--		state<=2;
-
-
-	--if (A(31)=B(31)) 
-	--then --足し算
-	--	if (rev_output<bsr_value)
-	--	then
 	fraction1 <= ("0"&Winnerfrc1)+("0"&bsr_result1(26 downto 1)&"1") when((sign_same1='1') and ((rev_output1+3) <  exp_sub1)) else
 		     ("0"&Winnerfrc1)+("0"&bsr_result1) 		      when(sign_same1='1') else
 		     ("0"&Winnerfrc1)-("0"&bsr_result1(26 downto 1)&"1") when((rev_output1+3) < exp_sub1)else
 		     ("0"&Winnerfrc1)-("0"&bsr_result1);
-		     --	end if;
-		     --end if;
 
 	pri_input <= fraction1&"0000";
 
