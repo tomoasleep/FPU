@@ -56,6 +56,8 @@ architecture fadd32 of FADD is
 
 	signal Winnerfrc0,Winnerfrc1: std_logic_vector(26 downto 0);
 
+	signal winner, loser: std_logic_vector(31 downto 0);
+
 begin
 	bsl: BARREL_LEFT
 	port map(
@@ -78,18 +80,19 @@ begin
 			i => pri_input,
 			o => pri_output1);
 
-	Winnerfrc0 <= "1"&A(22 downto 0)&"000" 		when (A(30 downto 0)>=B(30 downto 0)) else
-		      "1"&B(22 downto 0)&"000";
-	bsr_data  <=  "1"&B(22 downto 0)&"000" 		when (A(30 downto 0)>=B(30 downto 0)) else
-		      "1"&A(22 downto 0)&"000";
-	bsr_value <= A(30 downto 23)-B(30 downto 23) 	when (A(30 downto 0)>=B(30 downto 0)) else
-		     B(30 downto 23)-A(30 downto 23); 	
-	exponent0  <= A(30 downto 23)			when (A(30 downto 0)>=B(30 downto 0)) else
-		      B(30 downto 23);
-	sign0<=A(31) 					when (A(30 downto 0)>=B(30 downto 0)) else
-	       B(31);
-	rev_input <= B 					when (A(30 downto 0)>=B(30 downto 0)) else
-		     A;
+	winner <= A when A(30 downto 0) >= B(30 downto 0) else
+		  B;
+	loser <= B when A(30 downto 0) >= B(30 downto 0) else
+		 A;
+
+	Winnerfrc0 <= (others => '0') when winner(30 downto 23) = 0 else
+		      "1" & winner(22 downto 0) & "000";
+	bsr_data   <= (others => '0') when loser(30 downto 23) = 0 else
+		      "1" & loser(22 downto 0)  & "000";
+	bsr_value  <= winner(30 downto 23) - loser(30 downto 23);
+	exponent0  <= winner(30 downto 23);
+	sign0      <= winner(31);
+	rev_input  <= loser;
 
 
 
