@@ -27,21 +27,21 @@ architecture fadd32 of FADD is
 
 	component REV_ENCODER
 		port( i : in  std_logic_vector(31 downto 0);
-		      o : out std_logic_vector( 4 downto 0)
+		      o : out std_logic_vector(4 downto 0)
 	      );
 	end component;
 
 
 	component PRI_ENCODER
 		port( i : in  std_logic_vector(31 downto 0);
-		      o : out std_logic_vector( 4 downto 0)
+		      o : out std_logic_vector(4 downto 0)
 	      );
 	end component;
 
 	--SIGNALS
 	signal  sign_same0,sign_same1 :std_logic;
 	signal  bsl_data   : std_logic_vector(26 downto 0); 
-	signal  bsl_value  : std_logic_vector( 7 downto 0); 
+	signal  bsl_value  : std_logic_vector(7 downto 0); 
 	signal  bsl_result : std_logic_vector(26 downto 0); 
 	signal  bsr_data   : std_logic_vector(26 downto 0); 
 	signal  bsr_value,exp_sub1  : std_logic_vector( 7 downto 0); 

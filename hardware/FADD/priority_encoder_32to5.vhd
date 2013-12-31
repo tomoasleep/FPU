@@ -9,22 +9,6 @@ entity PRI_ENCODER is
 end PRI_ENCODER;
 
 architecture priority_32to5 of PRI_ENCODER is
-
---合成したほうがよい、と言う場合のための下準備
---  component PRI_ENCODER_8TO3 
---    port (i : in std_logic_vector(7 downto 0);
---      	  o : out std_logic_vector(2 downto 0);
---	  Valid : out std_logic);
---    end PRI_ENCODER_8TO3;
---
---  component PRI_ENCODER_4TO2 
---    port (i : in std_logic_vector(3 downto 0);
---      	  o : out std_logic_vector(1 downto 0);
---	  Valid : out std_logic);
---    end PRI_ENCODER_4TO2;
---
---signal interCarry: std_logic_vector()
-
 begin
 	o <= "11111"  when (i(31) = '1') else    
 	     "11110"  when (i(30) = '1') else 

@@ -9,22 +9,6 @@ entity REV_ENCODER is
 end REV_ENCODER;
 
 architecture reversed_32to5 of REV_ENCODER is
-
---合成したほうがよい、と言う場合のための下準備
---  component PRI_ENCODER_8TO3 
---    port (i : in std_logic_vector(7 downto 0);
---      	  o : out std_logic_vector(2 downto 0);
---	  Valid : out std_logic);
---    end PRI_ENCODER_8TO3;
---
---  component PRI_ENCODER_4TO2 
---    port (i : in std_logic_vector(3 downto 0);
---      	  o : out std_logic_vector(1 downto 0);
---	  Valid : out std_logic);
---    end PRI_ENCODER_4TO2;
---
---signal interCarry: std_logic_vector()
-
 begin
 	o <= "00000"when (i( 0) = '1') else  
 	     "00001"when (i( 1) = '1') else
