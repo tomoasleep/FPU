@@ -10,6 +10,14 @@ entity fmul is
 end fmul;
 
 architecture behave of fmul is
+  component exception_handler
+    Port ( dataA  : in std_logic_vector(31 downto 0); 
+           dataB  : in std_logic_vector(31 downto 0);
+           sign   : in std_logic;
+           flag   : out std_logic;
+           result : out std_logic_vector(31 downto 0));
+  end component;
+
   type exception is (ok, overflow, underflow);
 
   alias A_sign : std_logic is A(31);
@@ -31,10 +39,24 @@ architecture behave of fmul is
   signal st2_sign: std_logic;
   signal st2_exponent: std_logic_vector(8 downto 0);
   signal st2_fraction: std_logic_vector(26 downto 0);
-  signal st2_exception: exception;
+  signal st2_calc_exception: exception;
+
+  signal input_exception_flag: std_logic;
+  signal input_exception_result: std_logic_vector(31 downto 0);
+
+  signal st2_input_exception_flag: std_logic;
+  signal st2_input_exception_result: std_logic_vector(31 downto 0);
 
   constant fraction_roundup: std_logic_vector(25 downto 0) := (25 => '0', others => '1');
 begin
+  ex_handler: exception_handler
+  port map (
+    dataA => A,
+    dataB => B,
+    sign => st1_sign,
+    flag => input_exception_flag,
+    result => input_exception_result);
+
   stage1: process(A, B) begin
     st1_exponent(8 downto 0) <= std_logic_vector(unsigned('0' & A_exponent) +
       unsigned('0' & B_exponent));
@@ -43,79 +65,82 @@ begin
     st1_sign <= A_sign xor B_sign;
   end process;
 
-  stage2: process(clk, st1_exponent, st1_fraction, st1_sign)
+  stage2: process(clk, st1_exponent, st1_fraction, st1_sign, input_exception_flag, input_exception_result)
     variable fraction_shifted : std_logic_vector(26 downto 0);
-    variable fraction_guard : std_logic_vector(26 downto 0);
+
+    variable sticky_bit : std_logic;
+    variable exp_increment : std_logic_vector(0 downto 0);
+    variable msb : integer := 47;
   begin
     if rising_edge(clk) then
       if st1_fraction(47) = '1' then
-        if unsigned(st1_fraction(22 downto 0)) = 0 then
-          fraction_shifted := st1_fraction(47 downto 24) & "000";
-          fraction_guard :=
-            (3 => st1_fraction(23) and st1_fraction(24), others => '0');
-        else
-          fraction_shifted := st1_fraction(47 downto 24) & "000";
-          fraction_guard := (3 => st1_fraction(23), others => '0');
-        end if;
+        msb := 47;
+        exp_increment := "1";
       else
-        if unsigned(st1_fraction(21 downto 0)) = 0 then
-          fraction_shifted := st1_fraction(47 downto 23) & "00";
-          fraction_guard :=
-            (2 => st1_fraction(22) and st1_fraction(23), others => '0');
-        else
-          fraction_shifted := st1_fraction(47 downto 23) & "00";
-          fraction_guard := (2 => st1_fraction(22), others => '0');
-        end if;
+        msb := 46;
+        exp_increment := "0";
       end if;
 
-      st2_exponent <= std_logic_vector(unsigned(st1_exponent) - 127);
-      st2_fraction <= std_logic_vector(unsigned(fraction_shifted) +
-                                       unsigned(fraction_guard));
+      if unsigned(st1_fraction(msb - 26 downto 0)) = 0 then
+        sticky_bit := '0';
+      else
+        sticky_bit := '1';
+      end if;
 
+      fraction_shifted := st1_fraction(msb downto msb - 25) & sticky_bit;
+
+      if fraction_shifted(26 downto 3) = fraction_roundup then
+        exp_increment := "1";
+      end if;
+
+      st2_fraction <= fraction_shifted;
+      st2_exponent <= std_logic_vector(unsigned(st1_exponent) - 127 + unsigned(exp_increment));
       st2_sign <= st1_sign;
-      if unsigned(st1_exponent) < 127 then
-        st2_exception <= underflow;
-      elsif unsigned(st1_exponent) > 381 then
-        st2_exception <= overflow;
+
+      if unsigned(st1_exponent) <= 127 then
+        st2_calc_exception <= underflow;
+      elsif unsigned(st1_exponent) >= (127 + 255) then
+        st2_calc_exception <= overflow;
       else
-        st2_exception <= ok;
+        st2_calc_exception <= ok;
       end if;
+
+      st2_input_exception_result <= input_exception_result;
+      st2_input_exception_flag <= input_exception_flag;
     end if;
   end process;
 
-  stage3: process(clk, st2_exponent, st2_fraction, st2_exception, st2_sign) begin
+  stage3: process(clk, st2_exponent, st2_fraction, st2_calc_exception, st2_sign, st2_input_exception_flag, st2_input_exception_result)
+    variable rounded_exponent : std_logic_vector(8 downto 0);
+    variable rounded_fraction : std_logic_vector(22 downto 0);
+  begin
     if rising_edge(clk) then
-      case st2_exception is
-        when underflow =>
-          R_sign <= st2_sign;
-          R_exponent <= (others => '0');
-          R_fraction <= (others => '0');
-        when overflow =>
-          R_sign <= st2_sign;
-          R_exponent <= (others => '1');
-          R_fraction <= (others => '0');
-        when ok =>
-          R_sign <= st2_sign;
-
-          if st2_fraction(26) = '1' then
-            R_exponent <= std_logic_vector(unsigned(st2_exponent(7 downto 0)) + 1);
-            R_fraction <= st2_fraction(25 downto 3);
-
-          elsif st2_fraction(25 downto 0) = fraction_roundup then
-            R_exponent <= std_logic_vector(unsigned(st2_exponent(7 downto 0)) + 1);
-            R_fraction <= (others => '0');
-
-          elsif st2_exponent(7 downto 0) = x"00" then
+      if st2_input_exception_flag = '1' then
+        R <= st2_input_exception_result;
+      else
+        case st2_calc_exception is
+          when underflow =>
+            R_sign <= '0';
             R_exponent <= (others => '0');
             R_fraction <= (others => '0');
-          elsif st2_exponent(7 downto 0) = x"FF" then
+          when overflow =>
+            R_sign <= st2_sign;
             R_exponent <= (others => '1');
             R_fraction <= (others => '0');
-          else
-            R_exponent <= st2_exponent(7 downto 0);
-            R_fraction <= st2_fraction(24 downto 2);
-          end if;
-      end case;
+          when ok =>
+            R_sign <= st2_sign;
+            rounded_exponent := st2_exponent;
+
+            if (st2_fraction(2) and (st2_fraction(3) or st2_fraction(1) or st2_fraction(0))) = '1' then
+              rounded_fraction := std_logic_vector(unsigned(st2_fraction(25 downto 3)) + 1);
+            else
+              rounded_fraction := st2_fraction(25 downto 3);
+            end if;
+
+            R_exponent <= rounded_exponent(7 downto 0);
+            R_fraction <= rounded_fraction;
+        end case;
+      end if;
     end if;
   end process;
 end behave;
