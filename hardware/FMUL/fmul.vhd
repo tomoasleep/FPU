@@ -10,7 +10,7 @@ entity fmul is
 end fmul;
 
 architecture behave of fmul is
-  component exception_handler
+  component fmul_exception_handler
     Port ( dataA  : in std_logic_vector(31 downto 0); 
            dataB  : in std_logic_vector(31 downto 0);
            sign   : in std_logic;
@@ -49,7 +49,7 @@ architecture behave of fmul is
 
   constant fraction_roundup: std_logic_vector(25 downto 0) := (25 => '0', others => '1');
 begin
-  ex_handler: exception_handler
+  ex_handler: fmul_exception_handler
   port map (
     dataA => A,
     dataB => B,

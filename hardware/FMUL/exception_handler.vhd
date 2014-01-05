@@ -2,15 +2,15 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
-entity exception_handler is
+entity fmul_exception_handler is
   Port ( dataA  : in std_logic_vector(31 downto 0); 
          dataB  : in std_logic_vector(31 downto 0);
          sign   : in std_logic;
          flag   : out std_logic;
          result : out std_logic_vector(31 downto 0));
-end exception_handler;
+end fmul_exception_handler;
 
-architecture main of exception_handler is
+architecture main of fmul_exception_handler is
   constant exp_max : std_logic_vector(7 downto 0) := (others => '1');
   constant inf : std_logic_vector(30 downto 0)
     := (30 downto 23 => '1', 22 downto 0 => '0');
