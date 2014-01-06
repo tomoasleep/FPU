@@ -40,9 +40,6 @@ architecture main of fmul_exception_handler is
 
   signal is_exception_A : std_logic := '0';
   signal is_exception_B : std_logic := '0';
-
-  signal isnt_pos_inf : std_logic := '0';
-  signal isnt_neg_inf : std_logic := '0';
 begin
   is_frac_zero_A <= '1' when dataA(22 downto 0) = 0 else '0';
   is_frac_zero_B <= '1' when dataB(22 downto 0) = 0 else '0';
@@ -72,6 +69,6 @@ begin
   result <= zero   when is_zero_A = '1' or is_zero_B = '1' else
             dataA   when (is_nan_A or is_non_regular_A) = '1' else
             dataB   when (is_nan_B or is_non_regular_B) = '1' else
-            sign & inf when isnt_pos_inf = '1' else
+            sign & inf when (is_inf_A or is_inf_B) = '1' else
             nan_value;
 end main;
