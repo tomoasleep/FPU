@@ -97,9 +97,9 @@ begin
       st2_exponent <= std_logic_vector(unsigned(st1_exponent) - 127 + unsigned(exp_increment));
       st2_sign <= st1_sign;
 
-      if unsigned(st1_exponent) <= 127 then
+      if unsigned(st1_exponent) + unsigned(exp_increment) <= 127 then
         st2_calc_exception <= underflow;
-      elsif unsigned(st1_exponent) >= (127 + 255) then
+      elsif unsigned(st1_exponent) + unsigned(exp_increment) >= (127 + 255) then
         st2_calc_exception <= overflow;
       else
         st2_calc_exception <= ok;
