@@ -89,7 +89,7 @@ begin
 
       fraction_shifted := st1_fraction(msb downto msb - 25) & sticky_bit;
 
-      if fraction_shifted(26 downto 3) = fraction_roundup then
+      if fraction_shifted(25 downto 2) = fraction_roundup then
         exp_increment := "1";
       end if;
 
