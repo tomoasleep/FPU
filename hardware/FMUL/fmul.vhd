@@ -47,7 +47,7 @@ architecture behave of fmul is
   signal st2_input_exception_flag: std_logic;
   signal st2_input_exception_result: std_logic_vector(31 downto 0);
 
-  constant fraction_roundup: std_logic_vector(25 downto 0) := (25 => '0', others => '1');
+  constant fraction_roundup: std_logic_vector(23 downto 0) := (others => '1');
 begin
   ex_handler: fmul_exception_handler
   port map (
